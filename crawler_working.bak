@@ -10,11 +10,11 @@ from time import gmtime, strftime
 base_url = 'http://export.arxiv.org/api/query?';
 
 # Search parameters
-search_query = 'cat:physics.class-ph' # search for electron in all fields
-start = 0                       # start at the first result
-total_results = 6              # want 20 total results
-results_per_iteration = 2       # 5 results at a time
-wait_time = 3                   # number of seconds to wait beetween calls
+search_query = 'cat:physics.class-ph'	# search for electron in all fields
+start = 0				# start at the first result
+total_results = 10			# want 20 total results
+results_per_iteration = 3		# 5 results at a time
+wait_time = 3				# number of seconds to wait beetween calls
 #total_results = results_per_iteration 
 
 print 'Searching arXiv for %s' % search_query
@@ -38,7 +38,10 @@ go = open('raw_html_text.dat','w+')
 fo.write ("Crawling Start time:" + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '\n')
 go.write ("Crawling Start time:" + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '\n')
 
-for i in range(start,total_results,results_per_iteration):
+search_count=0
+article_count=start
+
+for i in range(start,start+total_results,results_per_iteration):
     
     print "Results %i - %i" % (i,i+results_per_iteration)
 
@@ -46,10 +49,15 @@ for i in range(start,total_results,results_per_iteration):
 
     # perform a GET request using the base_url and query
     response = urllib.urlopen(base_url+query).read()
+    go.write ("\n\nSearch count: " + str(search_count) + "\n")
+    go.write ('\nquery: ' + base_url + query + "\n\n")
     go.write (response)
+
+    search_count += 1
 
     # parse the response using feedparser
     feed = feedparser.parse(response)
+
     
     if i==start:
 	max_result_calculated = re.findall(max_result_pattern, response) 
@@ -73,21 +81,23 @@ for i in range(start,total_results,results_per_iteration):
         #print 'Author:  %s' % entry.author.name
 	#print authors
 
-	fo.write (article_id)
-	fo.write (article_updated)
-	fo.write (article_published)
-	fo.write (article_title)
-	fo.write (article_summary)
+	fo.write ('\n\n\nArticle no.: ' + str(article_count) + '\n')
+	fo.write (article_id.encode('utf-8'))
+	fo.write (article_updated.encode('utf-8'))
+	fo.write (article_published.encode('utf-8'))
+	fo.write (article_title.encode('utf-8'))
+	fo.write (article_summary.encode('utf-8'))
 	fo.write ('Author: '+', '.join(article_authors) + '\n')
 	#fo.write (article_title)
+	article_count += 1
     
     # Remember to play nice and sleep a bit before you call
     # the api again!
     print 'Sleeping for %i seconds' % wait_time 
     time.sleep(wait_time)
 
-fo.write ("Crawling End time:" + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '\n')
-go.write ("Crawling End time:" + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '\n')
+fo.write ("\n\nCrawling End time:" + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '\n')
+go.write ("\n\nCrawling End time:" + strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '\n')
 
 fo.close()
 go.close()

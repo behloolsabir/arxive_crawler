@@ -12,7 +12,7 @@ base_url = 'http://export.arxiv.org/api/query?';
 # Search parameters
 search_query = 'cat:physics.class-ph'	# search for electron in all fields
 start = 0				# start at the first result
-total_results = 3786			# want 20 total results
+total_results = 3700			# want 20 total results
 results_per_iteration = 1000		# 5 results at a time
 wait_time = 3				# number of seconds to wait beetween calls
 #total_results = results_per_iteration 
@@ -74,7 +74,14 @@ for i in range(start,start+total_results,results_per_iteration):
         article_published = 'Published on: %s\n' % entry.published
         article_title = 'Title: %s\n' % entry.title
 	article_summary = 'Abstract: %s\n' % entry.summary
-	article_authors = re.findall(author_pattern, response)
+##################################################
+	#to print all the authors
+	try: 
+	    article_authors = 'Authors: %s\n' % ', '.join(author.name for author in entry.authors)
+	except AttributeError:
+	    pass
+##################################################
+	#article_authors = re.findall(author_pattern, response)		#printing all the authors using reg expressions. Bug:This prints all the authors for each query together
 
         # feedparser v4.1 only grabs the first author
         #print 'First Author:  %s' % entry.author
@@ -87,7 +94,10 @@ for i in range(start,start+total_results,results_per_iteration):
 	fo.write (article_published.encode('utf-8'))
 	fo.write (article_title.encode('utf-8'))
 	fo.write (article_summary.encode('utf-8'))
-	fo.write ('Author: '+', '.join(article_authors) + '\n')
+	fo.write (article_authors.encode('utf-8'))
+
+	#fo.write ('Author: '+', '.join(article_authors) + '\n')	#uncomment this planning to print all the authors using reg expression
+	
 	#fo.write (article_title)
 	article_count += 1
     
