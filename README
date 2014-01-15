@@ -1,0 +1,12 @@
+This crawler pulls the data from ArXive using API engine.
+Saves the raw html pulled in raw_html_text.dat and parsed data in parsed_text.dat.
+parsed_text.dat contains basic metadata of each paper of the given query (specified in basic_url + query) like
+
+article_id
+updated time
+Published time
+Title
+Summary (Abstract)
+Authors Name
+
+Data is pulled using 'urllib' and parsed using 'feedparser'
